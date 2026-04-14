@@ -35,7 +35,7 @@
    >   # FLOAT 类型的取值范围如下：
    >   有符号的取值范围：-3.402823466E+38～-1.175494351E-38。
    >   无符号的取值范围：0 和 -1.175494351E-38～-3.402823466E+38。
-   >   
+   >     
    >   # DOUBLE 类型的取值范围如下：
    >   有符号的取值范围：-1.7976931348623157E+308～-2.2250738585072014E-308。
    >   无符号的取值范围：0 和 -2.2250738585072014E-308～-1.7976931348623157E+308。
@@ -429,7 +429,7 @@ select *, (chinese + english + math) /180 from students  where (chinese + englis
 | 运算符      | 作用       | 运算符      | 作用                      |
 | ----------- | ---------- | ----------- | ------------------------- |
 | =           | 等于       | <=>         | 等于(可比较null)          |
-| !=          | 不等于     | <>          | 不等于                    |
+| !=          | 不等于     | <>          | 不等于(可比较null)        |
 | <           | 小于       | >           | 大于                      |
 | <=          | 小于等于   | >=          | 大于等于                  |
 | is null     | 是否为null | is not null | 是否不为null              |
@@ -536,7 +536,7 @@ select * from students order by chinese desc, english desc, math desc;
 >
 > DESC: 降序排序
 >
-> 注意:  如上查询, 当我们进行多字段排序的时候, 会先满足第一个列的排序要求, 如果第一列一致的话, 再按照第二列进行排序, 以此类推
+> 注意:  如上查询, 当我们进行==**多字段排序的时候**==, 会先满足第一个列的排序要求, ==**如果第一列一致的话, 再按照第二列进行排序, 以此类推**==
 
 ##### 6.group by
 
@@ -559,15 +559,24 @@ select class, group_concat(name), avg(chinese) from students group by class havi
 
 ##### ==**7.聚合函数**==
 
-聚合函数一般用来计算列相关的指定值.。通常和分组一起使用
+聚合函数一般用来计算列相关的指定值。**通常**和分组一起使用
 
-> 1. count：用于计数；
-> 2. sum：求和；
-> 3. avg：求平均值；
-> 4. max：最大值；
-> 5. min：最小值；
+==但是**这 6 个全部都可以在不分组（不用 GROUP BY）的前提下单独使用**。==
 
-1. **count：用于计数**
+> 1. group_concat
+> 2. count：用于计数；
+> 3. sum：求和；
+> 4. avg：求平均值；
+> 5. max：最大值；
+> 6. min：最小值；
+
+1. **group_concat：把同一组里的多行文本，拼接成一行字符串**
+
+   ```sql
+   select 院系编号, GROUP_CONCAT(name) from S where age < 20 group by 院系编号 having 院系编号 = 计算机科学系编号;
+   ```
+
+2. **count：用于计数**
 
    ```sql
    SELECT <查询内容|列等> , COUNT <列|*> FROM  <表名字> GROUP BY HAVING COUNT <表达式|条件>
@@ -575,31 +584,37 @@ select class, group_concat(name), avg(chinese) from students group by class havi
 
    <span style=color:red;background:yellow;font-size:20px>**注意：面试常考点，count(1)与count(*)结果与性能基本等价，都是显示表中的所有条数（行数），包含空行；但是count(列名)只会显示非空行，如果是空的就不统计。**</span>
 
-2. **sum：求和**
+3. **sum：求和**
 
    ```sql
    SELECT <查询内容|列等> , SUM<列> FROM  <表名字> GROUP BY HAVING SUM<表达式|条件>
    ```
 
-3. **avg：求平均值**
+4. **avg：求平均值**
 
    ```sql
    SELECT <查询内容|列等> , AVG<列> FROM  <表名字> GROUP BY HAVING AVG<表达式|条件>
    ```
 
-4. **max：最大值**
+5. **max：最大值**
 
    ```sql
    SELECT <查询内容|列等> , MAX<列> FROM  <表名字> GROUP BY HAVING MAX<表达式|条件>
    ```
 
-5. **min：最小值**
+6. **min：最小值**
 
    ```sql
    SELECT <查询内容|列等> , MIN<列> FROM  <表名字> GROUP BY HAVING MIN<表达式|条件>
    ```
 
 ###### ==**6.SQL执行顺序**==
+
+**在整个 SQL 执行流程里，真正做 “分组” 这件事的，只有两个：**
+
+1. **GROUP BY** —— 负责**把行按字段分成一组一组**
+2. **HAVING** —— 负责**对分好的组进行过滤**
+3. **ORDER BY——==可以按 SELECT 里没出现的字段排序==，不是只能按 SELECT 映射的列**
 
 ```sql
 (5) SELECT column_name, ...
@@ -644,5 +659,81 @@ mysql> select sum(english) from person  group by person_id having sum(english) >
 2 rows in set (0.00 sec)
 
 mysql>
+```
+
+#### 6.数据完整性
+
+为了让设计的表中的数据是正确的，并且可以更加高效的获取
+
+1. **实体完整性**
+
+   **保证表中的每一行数据都是表中唯一的实体**。(即:一个表中每一条数据都应该是唯一的，就是为了保证表中的每一条数据是唯一的，可以通过主键进行体现）
+
+2. **域完整性**
+
+   **表示保证表中数据的字段的取值在有效范围之内或者符合特定的数据类型约束**
+
+3. **参照完整性**
+
+   **用于确保相关联的表间的数据应该要保持一致**，一般来讲, 参照完整性是通过==外键和主键==来维护的
+
+   外键的设置和取消: 
+
+   ```sql
+   # 方式一: 在创建表的时候设置外键
+   CREATE TABLE `class`  (
+   `id` int NOT NULL PRIMARY KEY,
+   `name` varchar(20) NULL
+   );
+   CREATE TABLE `student`  (
+   `id` int NOT NULL PRIMARY KEY,
+   `name` varchar(20) NULL,
+   `class_id` int ,
+   CONSTRAINT `foreign_key_name` FOREIGN KEY (class_id) REFERENCES `class`(`id`)
+   );
+   
+   #方式二: 表创建完毕, 对表设置外键
+   CREATE TABLE `class`  (
+   `id` int NOT NULL PRIMARY KEY,
+   `name` varchar(20) NULL
+   );
+   CREATE TABLE `student`  (
+   `id` int NOT NULL PRIMARY KEY,
+   `name` varchar(20) NULL,
+   `class_id` int 
+   );
+   
+   ALTER TABLE  `student` ADD CONSTRAINT `foreign_key_name` FOREIGN KEY (`class_id`) REFERENCES  `class` (`id`);
+   
+   #方式三: 表创建完毕, 添加新的字段列, 并且设置为外键
+   CREATE TABLE `class`  (
+   `id` int NOT NULL PRIMARY KEY,
+   `name` varchar(20) NULL
+   );
+   CREATE TABLE `student`  (
+   `id` int NOT NULL PRIMARY KEY,
+   `name` varchar(20) NULL
+   );
+   alter table `student` add column `class_id` int null after `name`,
+   add constraint `foreign_key_name` foreign key (`class_id`) references `class` (`id`);
+   
+   # 删除外键
+   ALTER TABLE `student` DROP FOREIGN KEY `foreign_key_name`;
+   ```
+
+```
+-- 第一步：查询buddy所在部门的所有员工姓名、部门号
+select ename 员工姓名, deptno 部门号
+from emp
+where deptno = (
+    -- 子查询：先查出buddy的部门号
+    select deptno 
+    from emp 
+    where ename = 'buddy'
+);
+```
+
+```
+select deptno no, avg(sal) avgs from emp group by deptno
 ```
 
