@@ -37,8 +37,8 @@ int main(int argc, char* argv[]){
     thread_pool_t pool;
     init_thread_pool(&pool, 4);
 
-    // create time wheel: 61 slots, 1s interval (approx 60s timeout)
-    g_tw = time_wheel_create(61, 1);
+    // create time wheel: 31 slots, 1s interval (approx 30s timeout)
+    g_tw = time_wheel_create(31, 1);
     if (!g_tw) {
         fprintf(stderr, "TimeWheel init failed\n");
         exit(1);
