@@ -1,5 +1,8 @@
 #include <my_header.h>
 #include "worker.h"
+#include "timewheel.h"
+
+extern TimeWheel *g_tw;
 
 void* thread_func(void* arg){
     thread_pool_t* pool = (thread_pool_t*)arg;
@@ -38,6 +41,8 @@ void* thread_func(void* arg){
             ssize_t ret = recv(client_fd, &cmd_type, sizeof(cmd_type), MSG_WAITALL);
             if(ret <= 0)
                 break; // 客户端断开
+            // Refresh timeout on activity
+            if (g_tw) time_wheel_refresh(g_tw, client_fd);
             char path[256] = {0};
             // 接收用户名/路径1
             if(cmd_type != CMD_PWD && cmd_type != CMD_LS){
@@ -62,6 +67,7 @@ void* thread_func(void* arg){
         if (session.upload_file_id != 0) { 
             forest_update_file_progress(session.upload_file_id, session.upload_received, 0);
         }
+        if (g_tw) time_wheel_del(g_tw, session.fd);
         close(session.fd);
         log_operation("User %s disconnected", session.user_name[0] ? session.user_name : "unknown");
         // -----------------------------------
