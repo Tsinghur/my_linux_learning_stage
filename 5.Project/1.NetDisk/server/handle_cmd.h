@@ -16,7 +16,8 @@ typedef enum {
     CMD_REMOVE,
     CMD_PWD,
     CMD_MKDIR,
-    CMD_RMDIR
+    CMD_RMDIR,
+    CMD_PING
 } CmdType;
 
 void handle_user(CmdType cmd, char* username, Session* sess);

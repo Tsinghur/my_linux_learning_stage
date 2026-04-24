@@ -14,7 +14,8 @@ typedef enum {
     CMD_REMOVE,
     CMD_PWD,
     CMD_MKDIR,
-    CMD_RMDIR
+    CMD_RMDIR,
+    CMD_PING
 } CmdType;
 
 // 从字符串 s 中提取命令类型，并原地将命令部分用 '\0' 截断

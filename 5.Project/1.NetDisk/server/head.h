@@ -15,5 +15,7 @@
 #include "user.h"               // 用户表操作 
 #include "file_forest.h"        // 文件森林表操作
 #include "file_hash.h"          // 文件哈希表操作
+#include "configuration.h"
+#include "timewheel.h"
 
 #endif

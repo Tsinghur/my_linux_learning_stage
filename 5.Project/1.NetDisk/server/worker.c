@@ -41,8 +41,13 @@ void* thread_func(void* arg){
             ssize_t ret = recv(client_fd, &cmd_type, sizeof(cmd_type), MSG_WAITALL);
             if(ret <= 0)
                 break; // 客户端断开
-            // Refresh timeout on activity
-            if (g_tw) time_wheel_refresh(g_tw, client_fd);
+            // 每接收一个新命令就更新一次时间轮
+            if (g_tw) 
+                time_wheel_refresh(g_tw, client_fd);
+            // 如果客户端只是ping了一下，即不会有后续数据，则继续下一次接收循环
+            if (cmd_type == CMD_PING) {
+                continue;
+            }
             char path[256] = {0};
             // 接收用户名/路径1
             if(cmd_type != CMD_PWD && cmd_type != CMD_LS){
@@ -67,7 +72,9 @@ void* thread_func(void* arg){
         if (session.upload_file_id != 0) { 
             forest_update_file_progress(session.upload_file_id, session.upload_received, 0);
         }
-        if (g_tw) time_wheel_del(g_tw, session.fd);
+        // 客户端断开时将其从时间轮中删除
+        if (g_tw) 
+            time_wheel_del(g_tw, session.fd);
         close(session.fd);
         log_operation("User %s disconnected", session.user_name[0] ? session.user_name : "unknown");
         // -----------------------------------

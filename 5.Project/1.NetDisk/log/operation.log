@@ -114,3 +114,102 @@
 [2026-04-20 21:44:33] User gzh disconnected
 [2026-04-20 21:45:52] User gzh logged in
 [2026-04-20 21:46:22] User gzh disconnected
+[2026-04-22 21:15:22] User gzh logged in
+[2026-04-22 21:15:50] User gzh disconnected
+[2026-04-22 21:52:29] User gzh logged in
+[2026-04-22 21:52:59] User gzh disconnected
+[2026-04-23 09:15:30] User gzh logged in
+[2026-04-23 09:15:59] User gzh disconnected
+[2026-04-23 09:16:07] User gzh logged in
+[2026-04-23 09:16:49] User gzh disconnected
+[2026-04-23 09:17:04] User gzh logged in
+[2026-04-23 09:18:41] User gzh disconnected
+[2026-04-23 09:23:49] User gzh logged in
+[2026-04-23 09:25:12] User gzh disconnected
+[2026-04-23 10:11:50] User gzh logged in
+[2026-04-23 10:12:06] User gzh created directory path: 2
+[2026-04-23 10:12:26] User gzh removed /1
+[2026-04-23 10:12:33] User gzh created directory path: 1
+[2026-04-23 10:12:35] User gzh removed /1
+[2026-04-23 10:13:10] User gzh disconnected
+[2026-04-23 10:14:08] User gzh logged in
+[2026-04-23 10:14:18] User gzh start upload /123.c
+[2026-04-23 10:14:18] User gzh completed upload /123.c (445 bytes)
+[2026-04-23 10:14:39] User gzh downloaded 123.c (offset 0, 445 bytes)
+[2026-04-23 10:14:59] User gzh downloaded 123.c (offset 0, 445 bytes)
+[2026-04-23 10:15:10] User gzh downloaded 123.c (offset 0, 445 bytes)
+[2026-04-23 10:15:40] User gzh disconnected
+[2026-04-23 10:57:40] User gzh logged in
+[2026-04-23 10:58:55] User gzh disconnected
+[2026-04-23 10:59:07] User gzh logged in
+[2026-04-23 10:59:37] User gzh downloaded 123.c (offset 0, 445 bytes)
+[2026-04-23 10:59:43] User gzh downloaded 123.c (offset 0, 445 bytes)
+[2026-04-23 11:00:24] User gzh start upload /2.c
+[2026-04-23 11:00:24] User gzh completed upload /2.c (774 bytes)
+[2026-04-23 11:00:53] User gzh disconnected
+[2026-04-23 11:03:24] User gzh logged in
+[2026-04-23 11:03:46] User gzh start upload /large.txt
+[2026-04-23 11:03:48] User gzh disconnected
+[2026-04-23 11:04:39] User gzh logged in
+[2026-04-23 11:04:55] User gzh resume upload /large.txt at offset 186122192
+[2026-04-23 11:05:03] User gzh completed upload /large.txt (1086415135 bytes)
+[2026-04-23 11:05:12] User gzh disconnected
+[2026-04-23 11:19:57] User gzh logged in
+[2026-04-23 11:20:57] User gzh disconnected
+[2026-04-23 14:25:21] User gzh logged in
+[2026-04-23 14:25:23] User gzh disconnected
+[2026-04-23 14:26:32] User unknown disconnected
+[2026-04-23 20:10:15] User gzh logged in
+[2026-04-23 20:10:42] User gzh start upload /1.c
+[2026-04-23 20:11:03] User gzh disconnected
+[2026-04-23 20:11:11] User gzh logged in
+[2026-04-23 20:11:24] User gzh start upload /1.c
+[2026-04-23 20:11:24] User gzh completed upload /1.c (445 bytes)
+[2026-04-23 20:11:37] User gzh start upload /2.c
+[2026-04-23 20:11:37] User gzh completed upload /2.c (774 bytes)
+[2026-04-23 20:11:52] User gzh start upload /3.c
+[2026-04-23 20:13:08] User gzh disconnected
+[2026-04-23 20:13:21] User gzh logged in
+[2026-04-23 20:14:20] User gzh disconnected
+[2026-04-23 20:28:20] User gzh logged in
+[2026-04-23 20:28:56] User gzh disconnected
+[2026-04-23 20:29:12] User gzh logged in
+[2026-04-23 20:29:26] User gzh sec-upload /3.c (hash: 02fa6cd54155edcf940307056cc11d23b678250aaad7407695b0860c1e7bbae0)
+[2026-04-23 20:29:39] User gzh sec-upload /4.c (hash: 02fa6cd54155edcf940307056cc11d23b678250aaad7407695b0860c1e7bbae0)
+[2026-04-23 20:30:01] User gzh start upload /5.c
+[2026-04-23 20:30:02] User gzh disconnected
+[2026-04-24 14:44:55] User gzh logged in
+[2026-04-24 14:45:11] User gzh disconnected
+[2026-04-24 14:45:17] User gzh logged in
+[2026-04-24 14:45:34] User gzh sec-upload /big.txt (hash: 4c23bb6893ea7a2a6a8f7f5ea349b3d569205e354697ab2914092c7ca926c257)
+[2026-04-24 14:45:38] User gzh disconnected
+[2026-04-24 14:46:19] User gzh logged in
+[2026-04-24 14:46:36] User gzh start upload /big.txt
+[2026-04-24 14:46:39] User gzh disconnected
+[2026-04-24 14:48:32] User gzh disconnected
+[2026-04-24 14:48:45] User gzh disconnected
+[2026-04-24 14:48:52] User gzh disconnected
+[2026-04-24 14:49:03] User gzh disconnected
+[2026-04-24 14:49:22] User unknown disconnected
+[2026-04-24 14:49:36] User gzh registered
+[2026-04-24 14:49:37] User gzh disconnected
+[2026-04-24 14:49:42] User unknown disconnected
+[2026-04-24 14:49:47] User gzh logged in
+[2026-04-24 14:50:01] User gzh resume upload /big.txt at offset 345324261
+[2026-04-24 14:50:07] User gzh completed upload /big.txt (1086415135 bytes)
+[2026-04-24 14:51:07] User gzh disconnected
+[2026-04-24 14:51:29] User gzh logged in
+[2026-04-24 14:51:41] User gzh sec-upload /big_bak.txt (hash: 4c23bb6893ea7a2a6a8f7f5ea349b3d569205e354697ab2914092c7ca926c257)
+[2026-04-24 14:51:43] User gzh disconnected
+[2026-04-24 14:55:06] User gzh logged in
+[2026-04-24 14:55:29] User gzh downloaded big.txt (offset 0, 1086415135 bytes)
+[2026-04-24 14:55:36] User gzh disconnected
+[2026-04-24 14:55:51] User gzh logged in
+[2026-04-24 14:56:08] User gzh downloaded big.txt (offset 0, 1086415135 bytes)
+[2026-04-24 14:56:09] User gzh disconnected
+[2026-04-24 14:56:17] User gzh logged in
+[2026-04-24 14:56:26] User gzh downloaded big.txt (offset 0, 1086415135 bytes)
+[2026-04-24 14:56:26] User gzh disconnected
+[2026-04-24 14:57:01] User gzh logged in
+[2026-04-24 14:57:09] User gzh downloaded big.txt (offset 941891584, 144523551 bytes)
+[2026-04-24 14:57:26] User gzh disconnected

@@ -1,7 +1,7 @@
 #ifndef __TIMEWHEEL_H__
 #define __TIMEWHEEL_H__
 
-#include <my_header.h>
+#include <stdint.h>
 #include <pthread.h>
 
 typedef struct node Node;

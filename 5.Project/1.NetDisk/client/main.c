@@ -2,22 +2,17 @@
 #include "separate_cmd_path.h"
 #include "cmd_set.h"
 #include "hash.h"
-
-#include <sys/select.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
+#include "configuration.h"
 
 char cur_path[1024] = "/"; // 当前工作目录，默认为"/"
+Configuration conf;
 
 // flag to indicate the client is currently performing a command that expects
 // direct socket responses; when set, the main loop won't consume socket data
-static volatile int handling_cmd = 0;
+int handling_cmd = 0;
 
-// Handle socket notifications when not in the middle of a command
-static void handle_socket_event(int client_fd) {
+// 处理服务器断开通知
+void handle_socket_event(int client_fd) {
     char buf[4096];
     ssize_t n = recv(client_fd, buf, sizeof(buf)-1, MSG_PEEK | MSG_DONTWAIT);
     if (n == 0) {
@@ -31,8 +26,7 @@ static void handle_socket_event(int client_fd) {
     }
     buf[n] = '\0';
 
-    // If it's a server notification (starts with "Server:" or contains "disconnected"),
-    // consume and print, then exit.
+    // 若是服务器断开通知，则打印并退出
     if (strncmp(buf, "Server:", 7) == 0 || strstr(buf, "disconnected") != NULL) {
         ssize_t m = recv(client_fd, buf, sizeof(buf)-1, 0);
         if (m > 0) {
@@ -47,7 +41,6 @@ static void handle_socket_event(int client_fd) {
         exit(0);
     }
 
-    // Otherwise, consume available bytes and print as informational messages
     ssize_t m = recv(client_fd, buf, sizeof(buf)-1, MSG_DONTWAIT);
     if (m > 0) {
         buf[m] = '\0';
@@ -57,14 +50,16 @@ static void handle_socket_event(int client_fd) {
 }
 
 int main(int argc, char* argv[]){                                  
+    Configuration_init(&conf);
+    Configuration_load(&conf, "../env");
     int client_fd = socket(AF_INET, SOCK_STREAM, 0);
     ERROR_CHECK(client_fd, -1, "socket");
 
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr("192.168.85.128");
-    server_addr.sin_port = htons(atoi("12345"));
+    server_addr.sin_addr.s_addr = inet_addr(Configuration_get(&conf, "ip"));
+    server_addr.sin_port = htons(atoi(Configuration_get(&conf, "port")));
 
     int ret_connect = connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr));
     ERROR_CHECK(ret_connect, -1, "connect");
@@ -77,6 +72,10 @@ int main(int argc, char* argv[]){
     while (!logged_in) {
         printf("Enter login/register user_name: ");
         fflush(stdout);
+        if (!handling_cmd) {
+            CmdType ping = CMD_PING;
+            send(client_fd, &ping, sizeof(ping), MSG_NOSIGNAL);
+        }
 
         fd_set rfds;
         FD_ZERO(&rfds);
@@ -88,17 +87,17 @@ int main(int argc, char* argv[]){
         if (sel <= 0) continue;
 
         if (FD_ISSET(client_fd, &rfds)) {
-            // server sent something (notification or close)
+            // 处理服务器通知
             handle_socket_event(client_fd);
             continue;
         }
 
-        // stdin ready
+        // 标准输入
         if (FD_ISSET(STDIN_FILENO, &rfds)) {
             if (fgets(buf, sizeof(buf), stdin) == NULL) {
-                break;  // EOF 退出
+                break; // EOF 退出
             }
-            buf[strcspn(buf, "\n")] = '\0';   // 移除换行符
+            buf[strcspn(buf, "\n")] = '\0'; // 移除换行符
 
             CmdType cmd_type;
             char username[256] = {0};
@@ -111,12 +110,12 @@ int main(int argc, char* argv[]){
                 continue;
             }
 
-            // send request
+            // 发送登录/注册命令
             handling_cmd = 1;
             send(client_fd, &cmd_type, sizeof(cmd_type), MSG_NOSIGNAL);
             send(client_fd, username, sizeof(username), MSG_NOSIGNAL);
 
-            // prompt password
+            // 发送密码
             char password[256] = {0};
             printf("password: ");
             fflush(stdout);
@@ -125,12 +124,11 @@ int main(int argc, char* argv[]){
                 break;
             }
             password[strcspn(password, "\n")] = '\0';
-
             int len = strlen(password);
             send(client_fd, &len, sizeof(len), MSG_NOSIGNAL);
             send(client_fd, password, len, MSG_NOSIGNAL);
 
-            // receive response (this is a command-response, so do not let the main loop consume it)
+            // 接收服务器回应
             char response[256] = {0};
             ssize_t rn = recv(client_fd, response, sizeof(response) - 1, 0);
             if (rn > 0) {
@@ -157,6 +155,10 @@ int main(int argc, char* argv[]){
     while (1) {
         printf("%s:%s$ ", cur_user, cur_path);
         fflush(stdout);
+        if (!handling_cmd) {
+            CmdType ping = CMD_PING;
+            send(client_fd, &ping, sizeof(ping), MSG_NOSIGNAL);
+        }
 
         fd_set rfds;
         FD_ZERO(&rfds);
@@ -167,7 +169,7 @@ int main(int argc, char* argv[]){
         int sel = select(nfds, &rfds, NULL, NULL, NULL);
         if (sel <= 0) continue;
 
-        // socket event (notification) when not handling a command
+        // 等待命令输入时接收到服务器的断开通知
         if (FD_ISSET(client_fd, &rfds) && !handling_cmd) {
             handle_socket_event(client_fd);
             continue;
@@ -191,7 +193,7 @@ int main(int argc, char* argv[]){
                 continue;
             }
 
-            // send command type
+            // 发送命令类型
             handling_cmd = 1;
             send(client_fd, &cmd_type, sizeof(cmd_type), MSG_NOSIGNAL);
 
@@ -201,7 +203,7 @@ int main(int argc, char* argv[]){
             switch (cmd_type) {
                 case CMD_LS:
                 case CMD_PWD:
-                    // no params
+                    // 没有参数
                     break;
                 case CMD_CD:
                 case CMD_MKDIR:
@@ -216,19 +218,19 @@ int main(int argc, char* argv[]){
                     send(client_fd, path2, sizeof(path2), MSG_NOSIGNAL);
                     cmd_puts(client_fd, path1, path2);
                     handling_cmd = 0;
-                    continue; // cmd_puts handles its own recv/send
+                    continue; // puts命令到这里已经处理完，继续下一次循环
                 case CMD_GETS:
                     get_path1(buf, path1, sizeof(path1));
                     get_path2(buf, path2, sizeof(path2));
                     send(client_fd, path1, sizeof(path1), MSG_NOSIGNAL);
                     cmd_gets(client_fd, path1, path2);
                     handling_cmd = 0;
-                    continue;
+                    continue; // gets命令到这里已经处理完，继续下一次循环
                 default:
                     break;
             }
 
-            // call handlers that will recv responses
+            // 执行除puts/gets外的其他命令
             switch (cmd_type) {
                 case CMD_CD:      cmd_cd(client_fd);      break;
                 case CMD_LS:      cmd_ls(client_fd);      break;
